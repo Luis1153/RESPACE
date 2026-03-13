@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RE-SPACED - Diseño de interiores profesional potenciado por IA. Transforma espacios al instante.">
+    <meta name="theme-color" content="#070708">
+    <title>RE-SPACED | Diseño de Interiores IA Profesional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            background: linear-gradient(135deg, #070708 0%, #0a0a0b 100%);
+            color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .neon-border {
+            border-color: #00f2ff;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.15), inset 0 0 20px rgba(0, 242, 255, 0.05);
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #00f2ff 0%, #0072ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-button {
+            background: linear-gradient(90deg, #00f2ff 0%, #0072ff 100%);
+            color: #000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gradient-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: left 0.3s ease;
+        }
+
+        .gradient-button:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .gradient-button:hover:not(:disabled) {
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.4), 0 10px 30px rgba(0, 242, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .gradient-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .gradient-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .secondary-button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .secondary-button:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .drop-zone {
+            border: 2px dashed rgba(0, 242, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: #00f2ff;
+            background: rgba(0, 242, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(0, 242, 255, 0.2);
+            border-top: 3px solid #00f2ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.1);
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .image-container:hover img {
+            transform: scale(1.02);
+        }
+
+        .loading-text {
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 640px) {
+            .text-6xl {
+                font-size: 2.5rem;
+                line-height: 1;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6">
+
+    <header class="text-center mb-12 fade-in">
+        <h1 class="text-6xl font-black tracking-tighter gradient-text leading-tight">RE-SPACED</h1>
+        <p class="text-gray-500 mt-4 text-base font-normal tracking-wide">Diseño de interiores profesional con IA</p>
+        <p class="text-gray-600 text-sm mt-2 font-light">Transforma tu espacio al instante</p>
+    </header>
+
+    <main class="glass p-8 sm:p-10 rounded-3xl w-full max-w-2xl neon-border fade-in">
+        
+        <!-- Vista de Configuración -->
+        <div class="space-y-6" id="setup-view">
+            <div id="error-container"></div>
+
+            <div class="drop-zone border-2 rounded-3xl p-8 sm:p-12 text-center cursor-pointer group transition-all duration-300" id="drop-zone">
+                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">📸</div>
+                <p class="text-white font-semibold text-lg" id="file-name">Sube la foto de tu habitación</p>
+                <p class="text-gray-500 text-sm mt-3 font-normal">JPG, PNG • Máx. 10 MB • Mín. 1200x800px</p>
+                <input type="file" id="file-input" class="hidden" accept="image/jpeg,image/png" aria-label="Subir imagen">
+            </div>
+
+            <button id="transform-btn" onclick="startTransformation()" class="gradient-button w-full py-4 sm:py-5 font-bold rounded-2xl uppercase tracking-[0.15em] text-sm sm:text-base transition-all duration-300" disabled aria-label="Generar diseño profesional">
+                Generar Diseño
+            </button>
+
+            <p class="text-gray-600 text-xs text-center tracking-wide">
+                Procesado con IA • Resultados en 30-60 segundos • Sin marca de agua
+            </p>
+        </div>
+
+        <!-- Vista de Carga -->
+        <div id="loading" class="hidden py-16 text-center fade-in">
+            <div class="flex justify-center mb-6">
+                <div class="spinner"></div>
+            </div>
+            <h2 class="text-2xl font-bold text-white loading-text">Procesando con IA</h2>
+            <p class="text-gray-500 text-sm mt-3 font-normal">Analizando espacios, texturas e iluminación</p>
+            <p class="text-gray-600 text-xs mt-4">Esto puede tomar hasta 60 segundos...</p>
+            <div class="mt-6 flex justify-center gap-1">
+                <div class="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
+                <div class="w-2 h-2 bg-cyan-500 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+                <div class="w-2 h-2 bg-cyan-500 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
+            </div>
+        </div>
+
+        <!-- Vista de Resultados -->
+        <div id="result-view" class="hidden space-y-6 fade-in">
+            <div class="image-container">
+                <img id="result-img" src="" alt="Diseño de interiores generado por IA" loading="lazy">
+            </div>
+
+            <div class="pt-2">
+                <p class="text-gray-600 text-xs mb-4 tracking-wide font-medium">OPCIONES</p>
+                <div class="flex gap-4">
+                    <button onclick="location.reload()" class="secondary-button flex-1 py-4 rounded-xl font-semibold text-sm uppercase tracking-wide transition-all duration-300">
+                        ↻ Nuevo Diseño
+                    </button>
+                    <button id="download-btn" class="gradient-button flex-1 py-4 font-semibold rounded-xl text-sm uppercase tracking-wide transition-all duration-300">
+                        ⬇ Descargar
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-gray-700/50">
+                <p class="text-gray-600 text-xs tracking-wide font-medium mb-3">DETALLES</p>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="bg-gray-900/30 rounded-lg p-3">
+                        <p class="text-gray-500 font-medium">Resolución</p>
+                        <p class="text-white font-semibold mt-1">1024 × 1024</p>
+                    </div>
+                    <div class="bg-gray-900/30 rounded-lg p-3">
+                        <p class="text-gray-500 font-medium">Modelo</p>
+                        <p class="text-white font-semibold mt-1">Interior Design AI</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-12 text-gray-700 text-[11px] tracking-[0.3em] uppercase font-medium">
+        <span class="text-cyan-500">RE-SPACED</span> © 2026 • Todos los derechos reservados
+    </footer>
+
+    <script>
+        // ==========================================
+        // API TOKEN CONFIGURADO ✓
+        // ==========================================
+        const REPLICATE_API_TOKEN = "r8_07ZW0pXDr0DHAvujnpc79cuGfjBwZVm0Fvh0S"; 
+        // ==========================================
+
+        const fileInput = document.getElementById('file-input');
+        const dropZone = document.getElementById('drop-zone');
+        const fileName = document.getElementById('file-name');
+        const transformBtn = document.getElementById('transform-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const errorContainer = document.getElementById('error-container');
+        let currentImageURL = null;
+
+        // Drag & Drop
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files[0]) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (file) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showError("El archivo es muy grande. Máximo 10 MB.");
+                    fileInput.value = '';
+                    return;
+                }
+                fileName.innerText = `✓ ${file.name}`;
+                transformBtn.disabled = false;
+            }
+        }
+
+        async function startTransformation() {
+            const file = fileInput.files[0];
+            if (!file) {
+                showError("Sube una foto primero.");
+                return;
+            }
+
+            clearError();
+            document.getElementById('setup-view').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+            transformBtn.disabled = true;
+
+            try {
+                // Convertir imagen a base64
+                const base64Image = await fileToBase64(file);
+                
+                // Llamar a Replicate API
+                const result = await callReplicateAPI(base64Image);
+                
+                if (result && result.output) {
+                    currentImageURL = result.output;
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('result-view').classList.remove('hidden');
+                    document.getElementById('result-img').src = currentImageURL;
+                    downloadBtn.onclick = downloadImage;
+                } else {
+                    throw new Error("No se recibió imagen del servidor");
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                showError(`❌ Error: ${error.message || "No se pudo procesar la imagen. Intenta de nuevo."}`);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('setup-view').classList.remove('hidden');
+                transformBtn.disabled = false;
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = (error) => reject(error);
+            });
+        }
+
+        async function callReplicateAPI(imageData) {
+            const prompt = "Ultra-modern luxury interior design, cinematic lighting, professional photography, 4k, photorealistic, elegant furniture, minimal clutter, contemporary style";
+            
+            const input = {
+                image: imageData,
+                prompt: prompt,
+                negative_prompt: "blurry, low quality, distorted",
+                num_inference_steps: 25,
+                guidance_scale: 7.5
+            };
+
+            // Crear predicción
+            const createResponse = await fetch("https://api.replicate.com/v1/predictions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Token ${REPLICATE_API_TOKEN}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    version: "adirik/interior-design:latest",
+                    input: input
+                })
+            });
+
+            if (!createResponse.ok) {
+                const errorData = await createResponse.json();
+                throw new Error(errorData.detail || "Error al crear la predicción");
+            }
+
+            let prediction = await createResponse.json();
+            const predictionId = prediction.id;
+
+            // Esperar a que se complete
+            let attempts = 0;
+            const maxAttempts = 120; // 2 minutos máximo
+
+            while ((prediction.status === "starting" || prediction.status === "processing") && attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Esperar 1 segundo
+                
+                const pollResponse = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
+                    headers: {
+                        "Authorization": `Token ${REPLICATE_API_TOKEN}`
+                    }
+                });
+
+                prediction = await pollResponse.json();
+                attempts++;
+            }
+
+            if (prediction.status !== "succeeded") {
+                throw new Error(`Error en procesamiento: ${prediction.error || prediction.status}`);
+            }
+
+            return {
+                output: prediction.output
+            };
+        }
+
+        function downloadImage() {
+            if (!currentImageURL) return;
+            
+            const link = document.createElement('a');
+            link.href = currentImageURL;
+            link.download = `respaced-design-${Date.now()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function showError(message) {
+            errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        function clearError() {
+            errorContainer.innerHTML = '';
+        }
+    </script>
+</body>
+</html>
