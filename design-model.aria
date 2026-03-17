@@ -1,0 +1,46 @@
+// RE-SPACED Interior Design AI Model
+// Usando ARIA Language
+
+model InteriorDesignAI {
+    name: "RE-SPACED Interior Design Generator",
+    version: "1.0.0",
+    type: "image-to-image",
+    provider: "replicate",
+    model: "adirik/interior-design"
+}
+
+// Función para cargar y procesar imagen
+function processRoomImage(imageSource) {
+    print("Loading room image...");
+    let image = await loadImage(imageSource);
+    print("Converting to tensor...");
+    let tensor = imageToTensor(image, [512, 512]);
+    print("Normalizing...");
+    let normalized = normalize(tensor);
+    return normalized;
+}
+
+// Función principal de diseño
+function generateInteriorDesign(roomImagePath) {
+    print("🎨 RE-SPACED Interior Design AI");
+    print("═══════════════════════════════════");
+    
+    // Procesar imagen
+    const processedImage = processRoomImage(roomImagePath);
+    print("✓ Image processed successfully");
+    
+    // Generar diseño
+    print("Generating design with AI...");
+    const designedImage = await generateDesign(processedImage);
+    print("✓ Design generated!");
+    
+    // Convertir resultado
+    const finalOutput = tensorToImage(designedImage);
+    print("✓ Output ready for download");
+    
+    return finalOutput;
+}
+
+// Ejecutar
+const roomImage = "room.jpg";
+generateInteriorDesign(roomImage);
