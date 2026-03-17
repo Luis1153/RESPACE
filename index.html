@@ -253,8 +253,8 @@
                         <p class="text-white font-semibold mt-1">1024 × 1024</p>
                     </div>
                     <div class="bg-gray-900/30 rounded-lg p-3">
-                        <p class="text-gray-500 font-medium">Modelo</p>
-                        <p class="text-white font-semibold mt-1">Interior Design AI</p>
+                        <p class="text-gray-500 font-medium">Motor</p>
+                        <p class="text-white font-semibold mt-1">ARIA v1.0</p>
                     </div>
                 </div>
             </div>
@@ -264,6 +264,8 @@
     <footer class="mt-12 text-gray-700 text-[11px] tracking-[0.3em] uppercase font-medium">
         <span class="text-cyan-500">RE-SPACED</span> © 2026 • Todos los derechos reservados
     </footer>
+
+    <script src="aria.js"></script>
 
     <script>
         // ==========================================
@@ -326,14 +328,19 @@
             transformBtn.disabled = true;
 
             try {
+                // Inicializar runtime de ARIA
+                const ariaRuntime = new ARIARuntime();
+                ariaRuntime.setAPIToken(REPLICATE_API_TOKEN);
+
                 // Convertir imagen a base64
                 const base64Image = await fileToBase64(file);
                 
-                // Llamar a Replicate API
-                const result = await callReplicateAPI(base64Image);
+                // Ejecutar con ARIA
+                console.log("🚀 Ejecutando ARIA Engine...");
+                const result = await ariaRuntime.generateDesignWithAI(base64Image);
                 
-                if (result && result.output) {
-                    currentImageURL = result.output;
+                if (result) {
+                    currentImageURL = result;
                     document.getElementById('loading').classList.add('hidden');
                     document.getElementById('result-view').classList.remove('hidden');
                     document.getElementById('result-img').src = currentImageURL;
@@ -360,64 +367,6 @@
             });
         }
 
-        async function callReplicateAPI(imageData) {
-            const prompt = "Ultra-modern luxury interior design, cinematic lighting, professional photography, 4k, photorealistic, elegant furniture, minimal clutter, contemporary style";
-            
-            const input = {
-                image: imageData,
-                prompt: prompt,
-                negative_prompt: "blurry, low quality, distorted",
-                num_inference_steps: 25,
-                guidance_scale: 7.5
-            };
-
-            // Crear predicción
-            const createResponse = await fetch("https://api.replicate.com/v1/predictions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Token ${REPLICATE_API_TOKEN}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    version: "adirik/interior-design:latest",
-                    input: input
-                })
-            });
-
-            if (!createResponse.ok) {
-                const errorData = await createResponse.json();
-                throw new Error(errorData.detail || "Error al crear la predicción");
-            }
-
-            let prediction = await createResponse.json();
-            const predictionId = prediction.id;
-
-            // Esperar a que se complete
-            let attempts = 0;
-            const maxAttempts = 120; // 2 minutos máximo
-
-            while ((prediction.status === "starting" || prediction.status === "processing") && attempts < maxAttempts) {
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Esperar 1 segundo
-                
-                const pollResponse = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
-                    headers: {
-                        "Authorization": `Token ${REPLICATE_API_TOKEN}`
-                    }
-                });
-
-                prediction = await pollResponse.json();
-                attempts++;
-            }
-
-            if (prediction.status !== "succeeded") {
-                throw new Error(`Error en procesamiento: ${prediction.error || prediction.status}`);
-            }
-
-            return {
-                output: prediction.output
-            };
-        }
-
         function downloadImage() {
             if (!currentImageURL) return;
             
@@ -436,12 +385,11 @@
         function clearError() {
             errorContainer.innerHTML = '';
         }
-    </script>
-            }
-    </script>
 
-    <!-- ARIA Engine -->
-    <script src="aria.js"></script>
+        // Cargar ARIA cuando esté listo
+        window.addEventListener('load', () => {
+            console.log('✅ ARIA Engine cargado y listo!');
+        });
+    </script>
 </body>
 </html>
-
