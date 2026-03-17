@@ -1,0 +1,11 @@
+// Mi primer diseño con ARIA
+
+function disenarSala() {
+    print("Iniciando diseño profesional...");
+    const imagen = await loadImage("mi-sala.jpg");
+    const tensor = imageToTensor(imagen);
+    const resultado = await generateDesign(tensor);
+    return resultado;
+}
+
+disenarSala();
